@@ -4,4 +4,9 @@ import com.bike.entity.Bike;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface BikeRepository extends JpaRepository<Bike, Long> {
+
+    boolean existsByRegistrationNumber(String registrationNumber);
+
+    boolean existsByRcNumber(String rcNumber);
 }
+

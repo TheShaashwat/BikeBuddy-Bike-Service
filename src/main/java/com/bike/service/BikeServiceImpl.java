@@ -1,6 +1,7 @@
 package com.bike.service;
 
 import com.bike.entity.Bike;
+import com.bike.exception.BikeAlreadyExistsException;
 import com.bike.exception.BikeNotFoundException;
 import com.bike.repository.BikeRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,8 +17,27 @@ public class BikeServiceImpl implements BikeService {
 
     @Override
     public Bike createBike(Bike bike) {
+
+        if (bikeRepository.existsByRegistrationNumber(
+                bike.getRegistrationNumber())) {
+
+            throw new BikeAlreadyExistsException(
+                    "Bike already exists with registration number: "
+                            + bike.getRegistrationNumber()
+            );
+        }
+
+        if (bikeRepository.existsByRcNumber(bike.getRcNumber())) {
+
+            throw new BikeAlreadyExistsException(
+                    "Bike already exists with RC number: "
+                            + bike.getRcNumber()
+            );
+        }
+
         return bikeRepository.save(bike);
     }
+
 
     @Override
     public Bike updateBike(Long id, Bike request) {
@@ -67,13 +87,20 @@ public class BikeServiceImpl implements BikeService {
 
     @Override
     public void deleteBike(Long id) {
-        bikeRepository.deleteById(id);
+        Bike bike = bikeRepository.findById(id)
+                .orElseThrow(() ->
+                        new BikeNotFoundException("Bike not found with id: " + id)
+                );
+        bikeRepository.delete(bike);
     }
+
 
     @Override
     public Bike getBikeById(Long id) {
         return bikeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Bike not found with id: " + id));
+                .orElseThrow(() ->
+                        new BikeNotFoundException("Bike not found with id: " + id)
+                );
     }
 
     @Override
